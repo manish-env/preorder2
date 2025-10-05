@@ -1,0 +1,30 @@
+{
+  "name": "shopify-preorder-dashboard",
+  "version": "1.0.0",
+  "description": "A dashboard for managing preorder settings in Shopify stores",
+  "main": "src/worker.js",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "start": "wrangler dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "shopify",
+    "preorder",
+    "dashboard",
+    "ecommerce",
+    "vue",
+    "cloudflare",
+    "workers"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
