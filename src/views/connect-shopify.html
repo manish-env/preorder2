@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Shopify - Preorder Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.9) 100%), 
+                        url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .connect-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 48px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .connect-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        }
+        
+        .connect-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .connect-header h1 {
+            margin: 0 0 8px 0;
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .connect-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        .shopify-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        
+        .shopify-section h3 {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .shopify-section p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            margin: 0 0 16px 0;
+            line-height: 1.5;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1),
+                        0 8px 32px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .connect-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #96bf48 0%, #7ba43a 100%);
+            color: #ffffff;
+            border: none;
+            padding: 18px 24px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 32px rgba(150, 191, 72, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .connect-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .connect-btn:hover:not(:disabled) {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(150, 191, 72, 0.3);
+            background: linear-gradient(135deg, #7ba43a 0%, #96bf48 100%);
+        }
+        
+        .connect-btn:hover::before {
+            left: 100%;
+        }
+        
+        .connect-btn:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.5);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .message {
+            margin: 16px 0;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .message.error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        
+        .message.success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .help-text {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        
+        .help-text h4 {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .help-text ol {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            margin: 0;
+            padding-left: 16px;
+        }
+        
+        .help-text li {
+            margin-bottom: 4px;
+        }
+        
+        .step-number {
+            background: rgba(150, 191, 72, 0.2);
+            border: 1px solid rgba(150, 191, 72, 0.3);
+            color: #96bf48;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="connect-container">
+        <div class="connect-header">
+            <h1>
+                <i class="fab fa-shopify"></i>
+                Connect Your Store
+            </h1>
+            <p>Connect your Shopify store to get started</p>
+        </div>
+        
+        <div v-if="message" :class="['message', messageType]">
+            {{ message }}
+        </div>
+        
+        <form @submit.prevent="connectStore">
+            <div class="shopify-section">
+                <h3><i class="fab fa-shopify"></i> Shopify Store Details</h3>
+                <p>Enter your Shopify store information to connect your preorder dashboard:</p>
+                
+                <div class="form-group">
+                    <label for="shopifyStoreUrl">
+                        <i class="fas fa-link"></i> Shopify Store URL
+                    </label>
+                    <input 
+                        type="text" 
+                        id="shopifyStoreUrl" 
+                        v-model="form.shopifyStoreUrl"
+                        placeholder="your-store.myshopify.com" 
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="shopifyApiKey">
+                        <i class="fas fa-key"></i> Admin API Access Token
+                    </label>
+                    <input 
+                        type="password" 
+                        id="shopifyApiKey" 
+                        v-model="form.shopifyApiKey"
+                        placeholder="shpat_..." 
+                        required
+                    >
+                </div>
+            </div>
+            
+            <div class="help-text">
+                <h4><i class="fas fa-info-circle"></i> How to get your API Access Token:</h4>
+                <ol>
+                    <li><span class="step-number">1</span>Go to your Shopify Admin Dashboard</li>
+                    <li><span class="step-number">2</span>Navigate to Apps → App and sales channel settings</li>
+                    <li><span class="step-number">3</span>Click "Develop apps" → "Create an app"</li>
+                    <li><span class="step-number">4</span>Give your app a name (e.g., "Preorder Dashboard")</li>
+                    <li><span class="step-number">5</span>Go to "Configuration" tab</li>
+                    <li><span class="step-number">6</span>Under "Admin API access scopes", enable: <strong>read_products, write_products, read_orders, write_orders</strong></li>
+                    <li><span class="step-number">7</span>Click "Save" then "Install app"</li>
+                    <li><span class="step-number">8</span>Copy the "Admin API access token"</li>
+                </ol>
+            </div>
+            
+            <button type="submit" class="connect-btn" :disabled="connecting">
+                <i class="fab fa-shopify"></i>
+                <span v-if="connecting">
+                    <div class="spinner"></div> Connecting...
+                </span>
+                <span v-else>Connect Store</span>
+            </button>
+        </form>
+    </div>
+    
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    form: {
+                        shopifyStoreUrl: '',
+                        shopifyApiKey: ''
+                    },
+                    connecting: false,
+                    message: '',
+                    messageType: ''
+                }
+            },
+            methods: {
+                async connectStore() {
+                    this.connecting = true;
+                    this.message = '';
+                    
+                    try {
+                        const response = await fetch('/api/auth/connect-shopify', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(this.form)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            this.showMessage('Store connected successfully! Redirecting to dashboard...', 'success');
+                            setTimeout(() => {
+                                window.location.href = '/';
+                            }, 2000);
+                        } else {
+                            this.showMessage(result.error || 'Connection failed', 'error');
+                        }
+                    } catch (error) {
+                        this.showMessage('Network error. Please try again.', 'error');
+                    } finally {
+                        this.connecting = false;
+                    }
+                },
+                
+                showMessage(text, type) {
+                    this.message = text;
+                    this.messageType = type;
+                    
+                    if (type === 'success') {
+                        setTimeout(() => {
+                            this.message = '';
+                        }, 5000);
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

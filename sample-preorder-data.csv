@@ -1,0 +1,5 @@
+handle,title,variant_title,variant_sku,preorder_enabled,preorder_limit,preorder_text
+awesome-t-shirt,Awesome T-Shirt,Small,TSHIRT-SM,true,50,Pre-order now! Ships in 2-3 weeks
+awesome-t-shirt,Awesome T-Shirt,Medium,TSHIRT-MD,false,0,
+cool-hoodie,Cool Hoodie,Black,HOODIE-BLK,true,100,Limited edition pre-order
+cool-hoodie,Cool Hoodie,White,HOODIE-WHT,true,25,Early bird special
