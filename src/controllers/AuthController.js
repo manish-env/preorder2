@@ -13,10 +13,14 @@ class AuthController {
 
   async signup(request, corsHeaders) {
     try {
+      console.log('Signup request received');
       const { email, password, storeName } = await request.json();
+      console.log('Signup data:', { email, storeName });
       
       // Check if user already exists
+      console.log('Checking if user exists...');
       if (await this.userModel.exists(email)) {
+        console.log('User already exists');
         return new Response(JSON.stringify({ 
           success: false,
           error: 'User with this email already exists' 
@@ -27,9 +31,11 @@ class AuthController {
       }
       
       // Hash password
+      console.log('Hashing password...');
       const passwordHash = await this.hashPassword(password);
       
       // Create user
+      console.log('Creating user...');
       const userId = await this.userModel.create({
         email,
         passwordHash,
@@ -37,12 +43,15 @@ class AuthController {
         shopifyStoreUrl: null,
         shopifyApiKey: null
       });
+      console.log('User created with ID:', userId);
       
       // Create session
+      console.log('Creating session...');
       const sessionId = this.generateSessionId();
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
       
       await this.sessionModel.create(sessionId, userId, expiresAt);
+      console.log('Session created');
       
       return new Response(JSON.stringify({ 
         success: true, 
@@ -58,6 +67,7 @@ class AuthController {
       
     } catch (error) {
       console.error('Error in signup:', error);
+      console.error('Error stack:', error.stack);
       return new Response(JSON.stringify({ 
         success: false,
         error: 'Signup failed', 
