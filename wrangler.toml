@@ -17,11 +17,5 @@ database_name = "preorder-db"
 database_id = "ef1a2776-cdb4-4834-a309-b0cbeb91a6a4"
 
 # Environment variables for your worker.
-# These should be set in your Cloudflare dashboard or via wrangler secret
+# All user data is stored in the database - no secrets needed
 [vars]
-# Set these via: wrangler secret put SHOPIFY_ADMIN_API_ACCESS_TOKEN
-# Set these via: wrangler secret put SHOPIFY_STORE_URL
-# Set these via: wrangler secret put SHOPIFY_WEBHOOK_SECRET
-# Set these via: wrangler secret put DASHBOARD_USERNAME
-# Set these via: wrangler secret put DASHBOARD_PASSWORD
-# Set these via: wrangler secret put SESSION_SECRET

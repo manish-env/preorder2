@@ -126,28 +126,12 @@ class AuthController {
 
   async login(request, corsHeaders) {
     try {
-      const { username, password } = await request.json();
+      const { email, password } = await request.json();
       
-      // For now, use simple username/password auth
-      // In production, you'd validate against database
-      if (username === this.env.DASHBOARD_USERNAME && password === this.env.DASHBOARD_PASSWORD) {
-        const sessionId = this.generateSessionId();
-        const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-        
-        // Create session (you might want to create a user record first)
-        await this.sessionModel.create(sessionId, 1, expiresAt); // Using user ID 1 for admin
-        
-        return new Response(JSON.stringify({ 
-          success: true, 
-          message: 'Login successful' 
-        }), {
-          headers: { 
-            'Content-Type': 'application/json', 
-            'Set-Cookie': this.createSessionCookie(sessionId),
-            ...corsHeaders 
-          }
-        });
-      } else {
+      // Find user by email
+      const user = await this.userModel.findByEmail(email);
+      
+      if (!user) {
         return new Response(JSON.stringify({ 
           success: false,
           error: 'Invalid credentials' 
@@ -156,6 +140,35 @@ class AuthController {
           headers: { 'Content-Type': 'application/json', ...corsHeaders }
         });
       }
+      
+      // Verify password
+      const passwordHash = await this.hashPassword(password);
+      if (user.password_hash !== passwordHash) {
+        return new Response(JSON.stringify({ 
+          success: false,
+          error: 'Invalid credentials' 
+        }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+      
+      // Create session
+      const sessionId = this.generateSessionId();
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      
+      await this.sessionModel.create(sessionId, user.id, expiresAt);
+      
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: 'Login successful' 
+      }), {
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Set-Cookie': this.createSessionCookie(sessionId),
+          ...corsHeaders 
+        }
+      });
     } catch (error) {
       console.error('Error in login:', error);
       return new Response(JSON.stringify({ 

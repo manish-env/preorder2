@@ -216,10 +216,10 @@
         
         <form id="loginForm">
             <div class="form-group">
-                <label for="username">
-                    <i class="fas fa-user"></i> Username
+                <label for="email">
+                    <i class="fas fa-envelope"></i> Email
                 </label>
-                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
             </div>
             
             <div class="form-group">
@@ -244,7 +244,7 @@
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
             const loginBtn = document.getElementById('loginBtn');
@@ -262,7 +262,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({ email, password })
                 });
                 
                 const result = await response.json();
