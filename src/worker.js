@@ -108,20 +108,27 @@ export default {
               // Reset database schema
               if (url.pathname === '/api/reset-db') {
                 try {
-                  console.log('Resetting database schema...');
+                  console.log('FORCE RESETTING database schema...');
                   
-                  // Drop all tables
-                  await env.DB.prepare('DROP TABLE IF EXISTS user_sessions').run();
+                  // Force drop all tables in correct order
                   await env.DB.prepare('DROP TABLE IF EXISTS preorder_settings').run();
                   await env.DB.prepare('DROP TABLE IF EXISTS stores').run();
+                  await env.DB.prepare('DROP TABLE IF EXISTS user_sessions').run();
                   await env.DB.prepare('DROP TABLE IF EXISTS users').run();
+                  
+                  console.log('All tables dropped, recreating...');
                   
                   // Reinitialize database
                   await initializeDatabase(env);
                   
+                  // Verify the stores table has user_id
+                  const storesInfo = await env.DB.prepare(`PRAGMA table_info(stores)`).all();
+                  console.log('VERIFIED stores table schema:', storesInfo);
+                  
                   return new Response(JSON.stringify({ 
                     success: true, 
-                    message: 'Database schema reset successfully' 
+                    message: 'Database schema FORCE reset successfully',
+                    storesSchema: storesInfo.results
                   }), {
                     headers: { 'Content-Type': 'application/json', ...corsHeaders }
                   });
