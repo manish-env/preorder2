@@ -113,18 +113,30 @@ export default {
               // Reset database schema
               if (url.pathname === '/api/reset-db') {
                 try {
-                  console.log('CREATING NEW DATABASE - Dropping ALL tables...');
+                  console.log('NUCLEAR DATABASE RESET - Dropping ALL tables and data...');
                   
-                  // Drop all tables in correct order
+                  // Drop all tables in correct order (including any indexes)
                   await env.DB.prepare('DROP TABLE IF EXISTS preorder_settings').run();
                   await env.DB.prepare('DROP TABLE IF EXISTS stores').run();
                   await env.DB.prepare('DROP TABLE IF EXISTS user_sessions').run();
                   await env.DB.prepare('DROP TABLE IF EXISTS users').run();
                   
-                  // Wait a moment for cleanup
-                  await new Promise(resolve => setTimeout(resolve, 100));
+                  // Drop any existing indexes
+                  try {
+                    await env.DB.prepare('DROP INDEX IF EXISTS idx_user_sessions_expires').run();
+                    await env.DB.prepare('DROP INDEX IF EXISTS idx_users_store_url').run();
+                    await env.DB.prepare('DROP INDEX IF EXISTS idx_preorder_settings_store_url').run();
+                    await env.DB.prepare('DROP INDEX IF EXISTS idx_preorder_settings_handle').run();
+                    await env.DB.prepare('DROP INDEX IF EXISTS idx_stores_user').run();
+                    await env.DB.prepare('DROP INDEX IF EXISTS idx_preorder_settings_user').run();
+                  } catch (indexError) {
+                    console.log('Index cleanup (some may not exist):', indexError.message);
+                  }
                   
-                  console.log('All tables dropped, creating NEW database schema...');
+                  // Wait for cleanup
+                  await new Promise(resolve => setTimeout(resolve, 200));
+                  
+                  console.log('All tables and indexes dropped, creating CLEAN database schema...');
                   
                   // Create new database with clean schema
                   await createNewDatabase(env);
@@ -135,15 +147,15 @@ export default {
                   const storesInfo = await env.DB.prepare(`PRAGMA table_info(stores)`).all();
                   const preorderInfo = await env.DB.prepare(`PRAGMA table_info(preorder_settings)`).all();
                   
-                  console.log('NEW DATABASE SCHEMA VERIFIED:');
-                  console.log('Users:', usersInfo.results.map(c => c.name));
-                  console.log('Sessions:', sessionsInfo.results.map(c => c.name));
-                  console.log('Stores:', storesInfo.results.map(c => c.name));
-                  console.log('Preorder:', preorderInfo.results.map(c => c.name));
+                  console.log('CLEAN DATABASE SCHEMA VERIFIED:');
+                  console.log('Users columns:', usersInfo.results.map(c => c.name));
+                  console.log('Sessions columns:', sessionsInfo.results.map(c => c.name));
+                  console.log('Stores columns:', storesInfo.results.map(c => c.name));
+                  console.log('Preorder columns:', preorderInfo.results.map(c => c.name));
                   
                   return new Response(JSON.stringify({ 
                     success: true, 
-                    message: 'NEW DATABASE created successfully',
+                    message: 'CLEAN DATABASE created successfully - All old columns removed',
                     schemas: {
                       users: usersInfo.results.map(c => c.name),
                       sessions: sessionsInfo.results.map(c => c.name),
@@ -154,10 +166,10 @@ export default {
                     headers: { 'Content-Type': 'application/json', ...corsHeaders }
                   });
                 } catch (error) {
-                  console.error('Database creation failed:', error);
+                  console.error('Nuclear database reset failed:', error);
                   return new Response(JSON.stringify({ 
                     success: false, 
-                    error: 'Database creation failed',
+                    error: 'Nuclear database reset failed',
                     details: error.message 
                   }), {
                     status: 500,
