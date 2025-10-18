@@ -119,14 +119,8 @@ class AuthController {
       );
       console.log('User details updated successfully');
       
-      // Create or update store entry
-      console.log('Creating/updating store entry...');
-      await this.storeModel.update(
-        sessionData.userId, 
-        fullStoreUrl, 
-        shopifyApiKey
-      );
-      console.log('Store entry updated successfully');
+      // Store credentials are now saved in the users table
+      // No need for separate stores table
       
       return new Response(JSON.stringify({ 
         success: true, 

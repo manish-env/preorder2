@@ -69,7 +69,6 @@ export async function initializeDatabase(env) {
       CREATE TABLE IF NOT EXISTS stores (
         store_url TEXT PRIMARY KEY,
         access_token TEXT NOT NULL,
-        user_id INTEGER NOT NULL,
         webhook_secret TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
