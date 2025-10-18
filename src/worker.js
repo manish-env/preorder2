@@ -108,34 +108,51 @@ export default {
               // Reset database schema
               if (url.pathname === '/api/reset-db') {
                 try {
-                  console.log('FORCE RESETTING database schema...');
+                  console.log('NUCLEAR RESET - Dropping ALL tables...');
                   
-                  // Force drop all tables in correct order
+                  // Nuclear option - drop everything
                   await env.DB.prepare('DROP TABLE IF EXISTS preorder_settings').run();
                   await env.DB.prepare('DROP TABLE IF EXISTS stores').run();
                   await env.DB.prepare('DROP TABLE IF EXISTS user_sessions').run();
                   await env.DB.prepare('DROP TABLE IF EXISTS users').run();
                   
-                  console.log('All tables dropped, recreating...');
+                  // Wait a moment for cleanup
+                  await new Promise(resolve => setTimeout(resolve, 100));
                   
-                  // Reinitialize database
+                  console.log('All tables dropped, recreating with correct schema...');
+                  
+                  // Reinitialize database with correct schema
                   await initializeDatabase(env);
                   
-                  // Verify the stores table has user_id
+                  // Verify all tables have correct schema
+                  const usersInfo = await env.DB.prepare(`PRAGMA table_info(users)`).all();
+                  const sessionsInfo = await env.DB.prepare(`PRAGMA table_info(user_sessions)`).all();
                   const storesInfo = await env.DB.prepare(`PRAGMA table_info(stores)`).all();
-                  console.log('VERIFIED stores table schema:', storesInfo);
+                  const preorderInfo = await env.DB.prepare(`PRAGMA table_info(preorder_settings)`).all();
+                  
+                  console.log('VERIFIED schemas:');
+                  console.log('Users:', usersInfo.results.map(c => c.name));
+                  console.log('Sessions:', sessionsInfo.results.map(c => c.name));
+                  console.log('Stores:', storesInfo.results.map(c => c.name));
+                  console.log('Preorder:', preorderInfo.results.map(c => c.name));
                   
                   return new Response(JSON.stringify({ 
                     success: true, 
-                    message: 'Database schema FORCE reset successfully',
-                    storesSchema: storesInfo.results
+                    message: 'Database NUCLEAR reset successful',
+                    schemas: {
+                      users: usersInfo.results.map(c => c.name),
+                      sessions: sessionsInfo.results.map(c => c.name),
+                      stores: storesInfo.results.map(c => c.name),
+                      preorder: preorderInfo.results.map(c => c.name)
+                    }
                   }), {
                     headers: { 'Content-Type': 'application/json', ...corsHeaders }
                   });
                 } catch (error) {
+                  console.error('Nuclear reset failed:', error);
                   return new Response(JSON.stringify({ 
                     success: false, 
-                    error: 'Database reset failed',
+                    error: 'Nuclear reset failed',
                     details: error.message 
                   }), {
                     status: 500,
