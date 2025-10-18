@@ -5,6 +5,24 @@ export async function initializeDatabase(env) {
     
     // Create users table
     console.log('Creating users table...');
+    
+    // First, check if the table exists and has the correct schema
+    try {
+      const tableInfo = await env.DB.prepare(`PRAGMA table_info(users)`).all();
+      console.log('Current users schema:', tableInfo);
+      
+      // If table exists but has old columns, drop and recreate
+      const hasOldColumns = tableInfo.results.some(col => 
+        col.name === 'store_name' || col.name === 'shopify_store_url' || col.name === 'shopify_api_key'
+      );
+      if (tableInfo.results.length > 0 && hasOldColumns) {
+        console.log('Dropping old users table...');
+        await env.DB.prepare(`DROP TABLE IF EXISTS users`).run();
+      }
+    } catch (error) {
+      console.log('Table does not exist or error checking schema:', error.message);
+    }
+    
     await env.DB.prepare(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,9 +71,11 @@ export async function initializeDatabase(env) {
       const tableInfo = await env.DB.prepare(`PRAGMA table_info(stores)`).all();
       console.log('Current stores schema:', tableInfo);
       
-      // If table exists but doesn't have user_id column, drop and recreate
-      const hasUserId = tableInfo.results.some(col => col.name === 'user_id');
-      if (tableInfo.results.length > 0 && !hasUserId) {
+      // If table exists but has old columns, drop and recreate
+      const hasOldColumns = tableInfo.results.some(col => 
+        col.name === 'id' || col.name === 'user_id' || col.name === 'store_name'
+      );
+      if (tableInfo.results.length > 0 && hasOldColumns) {
         console.log('Dropping old stores table...');
         await env.DB.prepare(`DROP TABLE IF EXISTS stores`).run();
       }
@@ -85,9 +105,9 @@ export async function initializeDatabase(env) {
       const tableInfo = await env.DB.prepare(`PRAGMA table_info(preorder_settings)`).all();
       console.log('Current preorder_settings schema:', tableInfo);
       
-      // If table exists but doesn't have user_id column, drop and recreate
-      const hasUserId = tableInfo.results.some(col => col.name === 'user_id');
-      if (tableInfo.results.length > 0 && !hasUserId) {
+      // If table exists but has old columns, drop and recreate
+      const hasOldColumns = tableInfo.results.some(col => col.name === 'user_id');
+      if (tableInfo.results.length > 0 && hasOldColumns) {
         console.log('Dropping old preorder_settings table...');
         await env.DB.prepare(`DROP TABLE IF EXISTS preorder_settings`).run();
       }
