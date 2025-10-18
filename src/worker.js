@@ -110,66 +110,52 @@ export default {
                 }
               }
 
-              // Reset database schema
+              // Force drop users table
               if (url.pathname === '/api/reset-db') {
                 try {
-                  console.log('NUCLEAR DATABASE RESET - Dropping ALL tables and data...');
+                  console.log('FORCE DROPPING USERS TABLE...');
                   
-                  // Drop all tables in correct order (including any indexes)
-                  await env.DB.prepare('DROP TABLE IF EXISTS preorder_settings').run();
-                  await env.DB.prepare('DROP TABLE IF EXISTS stores').run();
-                  await env.DB.prepare('DROP TABLE IF EXISTS user_sessions').run();
-                  await env.DB.prepare('DROP TABLE IF EXISTS users').run();
+                  // Force drop users table first
+                  await env.DB.prepare('DROP TABLE users').run();
+                  console.log('Users table DROPPED successfully');
                   
-                  // Drop any existing indexes
-                  try {
-                    await env.DB.prepare('DROP INDEX IF EXISTS idx_user_sessions_expires').run();
-                    await env.DB.prepare('DROP INDEX IF EXISTS idx_users_store_url').run();
-                    await env.DB.prepare('DROP INDEX IF EXISTS idx_preorder_settings_store_url').run();
-                    await env.DB.prepare('DROP INDEX IF EXISTS idx_preorder_settings_handle').run();
-                    await env.DB.prepare('DROP INDEX IF EXISTS idx_stores_user').run();
-                    await env.DB.prepare('DROP INDEX IF EXISTS idx_preorder_settings_user').run();
-                  } catch (indexError) {
-                    console.log('Index cleanup (some may not exist):', indexError.message);
-                  }
+                  // Wait a moment
+                  await new Promise(resolve => setTimeout(resolve, 100));
                   
-                  // Wait for cleanup
-                  await new Promise(resolve => setTimeout(resolve, 200));
+                  // Create new users table with correct schema
+                  console.log('Creating NEW users table with correct schema...');
+                  await env.DB.prepare(`
+                    CREATE TABLE users (
+                      id INTEGER PRIMARY KEY AUTOINCREMENT,
+                      email TEXT UNIQUE NOT NULL,
+                      password_hash TEXT NOT NULL,
+                      store_url TEXT,
+                      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )
+                  `).run();
+                  console.log('NEW users table created');
                   
-                  console.log('All tables and indexes dropped, creating CLEAN database schema...');
+                  // Create index
+                  await env.DB.prepare(`CREATE INDEX idx_users_store_url ON users(store_url)`).run();
+                  console.log('Index created');
                   
-                  // Create new database with clean schema
-                  await createNewDatabase(env);
-                  
-                  // Verify all tables have correct schema
+                  // Verify the new schema
                   const usersInfo = await env.DB.prepare(`PRAGMA table_info(users)`).all();
-                  const sessionsInfo = await env.DB.prepare(`PRAGMA table_info(user_sessions)`).all();
-                  const storesInfo = await env.DB.prepare(`PRAGMA table_info(stores)`).all();
-                  const preorderInfo = await env.DB.prepare(`PRAGMA table_info(preorder_settings)`).all();
-                  
-                  console.log('CLEAN DATABASE SCHEMA VERIFIED:');
-                  console.log('Users columns:', usersInfo.results.map(c => c.name));
-                  console.log('Sessions columns:', sessionsInfo.results.map(c => c.name));
-                  console.log('Stores columns:', storesInfo.results.map(c => c.name));
-                  console.log('Preorder columns:', preorderInfo.results.map(c => c.name));
+                  console.log('NEW USERS TABLE SCHEMA:');
+                  console.log('Columns:', usersInfo.results.map(c => c.name));
                   
                   return new Response(JSON.stringify({ 
                     success: true, 
-                    message: 'CLEAN DATABASE created successfully - All old columns removed',
-                    schemas: {
-                      users: usersInfo.results.map(c => c.name),
-                      sessions: sessionsInfo.results.map(c => c.name),
-                      stores: storesInfo.results.map(c => c.name),
-                      preorder: preorderInfo.results.map(c => c.name)
-                    }
+                    message: 'Users table FORCE DROPPED and recreated with correct schema',
+                    usersSchema: usersInfo.results.map(c => c.name)
                   }), {
                     headers: { 'Content-Type': 'application/json', ...corsHeaders }
                   });
                 } catch (error) {
-                  console.error('Nuclear database reset failed:', error);
+                  console.error('Force drop failed:', error);
                   return new Response(JSON.stringify({ 
                     success: false, 
-                    error: 'Nuclear database reset failed',
+                    error: 'Force drop failed',
                     details: error.message 
                   }), {
                     status: 500,
