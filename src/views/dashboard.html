@@ -292,6 +292,110 @@
             color: #ef4444;
         }
         
+        .error-banner {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+        }
+        
+        .error-banner i {
+            font-size: 18px;
+        }
+        
+        .retry-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-left: auto;
+        }
+        
+        .retry-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .empty-icon {
+            font-size: 80px;
+            color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 32px;
+        }
+        
+        .empty-state h3 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+        
+        .empty-state p {
+            font-size: 18px;
+            opacity: 0.7;
+            margin-bottom: 32px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .empty-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-btn.primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+        }
+        
+        .action-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+        }
+        
+        .action-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .action-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -326,7 +430,17 @@
 
         <!-- Messages -->
         <div v-if="message" :class="['message', messageType]">
+            <i class="fas fa-exclamation-circle"></i>
             {{ message }}
+        </div>
+        
+        <!-- Error State -->
+        <div v-if="error" class="error-banner">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>{{ error }}</span>
+            <button @click="retryLoad" class="retry-btn">
+                <i class="fas fa-redo"></i> Retry
+            </button>
         </div>
 
         <!-- Main Content -->
@@ -420,10 +534,20 @@
             </div>
             
             <!-- Empty State -->
-            <div v-else style="text-align: center; padding: 60px; opacity: 0.8;">
-                <i class="fas fa-box-open" style="font-size: 64px; margin-bottom: 24px; opacity: 0.6;"></i>
-                <h3 style="font-size: 24px; font-weight: 700; margin-bottom: 12px; color: #ffffff;">No products found</h3>
-                <p style="font-size: 16px; opacity: 0.7;">Upload a CSV file to get started</p>
+            <div v-else class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <h3>No products found</h3>
+                <p>Your Shopify store doesn't have any products yet, or there was an error loading them.</p>
+                <div class="empty-actions">
+                    <button @click="retryLoad" class="action-btn primary">
+                        <i class="fas fa-redo"></i> Retry Loading
+                    </button>
+                    <button @click="uploadFile" class="action-btn secondary">
+                        <i class="fas fa-upload"></i> Upload CSV
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -441,6 +565,7 @@
                     loading: false,
                     message: '',
                     messageType: '',
+                    error: '',
                     selectedFile: null,
                     uploading: false,
                     isDragOver: false
@@ -462,19 +587,31 @@
             methods: {
                 async loadProducts() {
                     this.loading = true;
+                    this.error = '';
                     try {
                         const response = await fetch('/api/products');
                         if (response.ok) {
                             this.products = await response.json();
                             this.filteredProducts = this.products;
                         } else {
-                            this.showMessage('Failed to load products', 'error');
+                            const errorData = await response.json();
+                            this.error = errorData.details || 'Failed to load products';
                         }
                     } catch (error) {
-                        this.showMessage('Error loading products', 'error');
+                        this.error = 'Network Error - Please check your connection';
+                        console.error('Error loading products:', error);
                     } finally {
                         this.loading = false;
                     }
+                },
+                
+                async retryLoad() {
+                    this.error = '';
+                    await this.loadProducts();
+                },
+                
+                uploadFile() {
+                    this.$refs.fileInput.click();
                 },
                 
                 searchProducts() {
