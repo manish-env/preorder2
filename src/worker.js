@@ -105,6 +105,38 @@ export default {
                 }
               }
 
+              // Reset database schema
+              if (url.pathname === '/api/reset-db') {
+                try {
+                  console.log('Resetting database schema...');
+                  
+                  // Drop all tables
+                  await env.DB.prepare('DROP TABLE IF EXISTS user_sessions').run();
+                  await env.DB.prepare('DROP TABLE IF EXISTS preorder_settings').run();
+                  await env.DB.prepare('DROP TABLE IF EXISTS stores').run();
+                  await env.DB.prepare('DROP TABLE IF EXISTS users').run();
+                  
+                  // Reinitialize database
+                  await initializeDatabase(env);
+                  
+                  return new Response(JSON.stringify({ 
+                    success: true, 
+                    message: 'Database schema reset successfully' 
+                  }), {
+                    headers: { 'Content-Type': 'application/json', ...corsHeaders }
+                  });
+                } catch (error) {
+                  return new Response(JSON.stringify({ 
+                    success: false, 
+                    error: 'Database reset failed',
+                    details: error.message 
+                  }), {
+                    status: 500,
+                    headers: { 'Content-Type': 'application/json', ...corsHeaders }
+                  });
+                }
+              }
+
       // Default API response
       return new Response(JSON.stringify({ error: 'API endpoint not found' }), {
           status: 404,
