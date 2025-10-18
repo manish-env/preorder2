@@ -5,9 +5,14 @@ import Store from '../models/Store.js';
 
 class AuthController {
   constructor(env) {
-    this.userModel = new User(env);
-    this.sessionModel = new Session(env);
-    this.storeModel = new Store(env);
+    try {
+      this.userModel = new User(env);
+      this.sessionModel = new Session(env);
+      this.storeModel = new Store(env);
+    } catch (error) {
+      console.error('AuthController initialization failed:', error);
+      throw error;
+    }
   }
 
   async signup(request, corsHeaders) {
@@ -135,12 +140,17 @@ class AuthController {
 
   async login(request, corsHeaders) {
     try {
+      console.log('Login request received');
       const { email, password } = await request.json();
+      console.log('Login attempt for email:', email);
       
       // Find user by email
+      console.log('Looking up user in database...');
       const user = await this.userModel.findByEmail(email);
+      console.log('User lookup result:', user ? 'User found' : 'User not found');
       
       if (!user) {
+        console.log('User not found, returning 401');
         return new Response(JSON.stringify({ 
           success: false,
           error: 'Invalid credentials' 
@@ -151,8 +161,12 @@ class AuthController {
       }
       
       // Verify password
+      console.log('Verifying password...');
       const passwordHash = await this.hashPassword(password);
+      console.log('Password verification complete');
+      
       if (user.password_hash !== passwordHash) {
+        console.log('Password mismatch, returning 401');
         return new Response(JSON.stringify({ 
           success: false,
           error: 'Invalid credentials' 
@@ -163,10 +177,12 @@ class AuthController {
       }
       
       // Create session
+      console.log('Creating session...');
       const sessionId = this.generateSessionId();
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
       
       await this.sessionModel.create(sessionId, user.id, expiresAt);
+      console.log('Session created successfully');
       
       return new Response(JSON.stringify({ 
         success: true, 
@@ -180,6 +196,7 @@ class AuthController {
       });
     } catch (error) {
       console.error('Error in login:', error);
+      console.error('Error stack:', error.stack);
       return new Response(JSON.stringify({ 
         success: false,
         error: 'Login failed', 

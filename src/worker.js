@@ -20,12 +20,35 @@ export default {
     };
 
     // Initialize database
-    await initializeDatabase(env);
+    try {
+      await initializeDatabase(env);
+    } catch (error) {
+      console.error('Database initialization failed:', error);
+      return new Response(JSON.stringify({ 
+        error: 'Database initialization failed', 
+        details: error.message 
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
 
     // Initialize middleware and routes
-    const authMiddleware = new AuthMiddleware(env);
-    const authRoutes = setupAuthRoutes(env);
-    const productRoutes = setupProductRoutes(env);
+    let authMiddleware, authRoutes, productRoutes;
+    try {
+      authMiddleware = new AuthMiddleware(env);
+      authRoutes = setupAuthRoutes(env);
+      productRoutes = setupProductRoutes(env);
+    } catch (error) {
+      console.error('Route initialization failed:', error);
+      return new Response(JSON.stringify({ 
+        error: 'Route initialization failed', 
+        details: error.message 
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
 
     // Handle CORS preflight
       if (request.method === 'OPTIONS') {
