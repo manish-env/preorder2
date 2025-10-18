@@ -5,12 +5,12 @@ class User {
   }
 
   async create(userData) {
-    const { email, passwordHash, storeName, shopifyStoreUrl, shopifyApiKey } = userData;
+    const { email, passwordHash, storeUrl } = userData;
     
     const result = await this.db.prepare(`
-      INSERT INTO users (email, password_hash, store_name, shopify_store_url, shopify_api_key)
-      VALUES (?, ?, ?, ?, ?)
-    `).bind(email, passwordHash, storeName, shopifyStoreUrl, shopifyApiKey).run();
+      INSERT INTO users (email, password_hash, store_url)
+      VALUES (?, ?, ?)
+    `).bind(email, passwordHash, storeUrl).run();
     
     return result.meta.last_row_id;
   }
@@ -27,12 +27,12 @@ class User {
     `).bind(id).first();
   }
 
-  async updateShopifyDetails(userId, shopifyStoreUrl, shopifyApiKey) {
+  async updateStoreUrl(userId, storeUrl) {
     return await this.db.prepare(`
       UPDATE users 
-      SET shopify_store_url = ?, shopify_api_key = ?
+      SET store_url = ?
       WHERE id = ?
-    `).bind(shopifyStoreUrl, shopifyApiKey, userId).run();
+    `).bind(storeUrl, userId).run();
   }
 
   async exists(email) {

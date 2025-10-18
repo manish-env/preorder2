@@ -10,9 +10,7 @@ export async function initializeDatabase(env) {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
-        store_name TEXT NOT NULL,
-        shopify_store_url TEXT,
-        shopify_api_key TEXT,
+        store_url TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `).run();
@@ -69,7 +67,11 @@ export async function initializeDatabase(env) {
       CREATE TABLE IF NOT EXISTS stores (
         store_url TEXT PRIMARY KEY,
         access_token TEXT NOT NULL,
-        webhook_secret TEXT,
+        webhook_access_token TEXT,
+        metafield_a TEXT,
+        metafield_b TEXT,
+        metafield_c TEXT,
+        metafield_d TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `).run();
@@ -96,7 +98,6 @@ export async function initializeDatabase(env) {
     await env.DB.prepare(`
       CREATE TABLE IF NOT EXISTS preorder_settings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
         store_url TEXT NOT NULL,
         product_handle TEXT NOT NULL,
         variant_title TEXT,
@@ -105,7 +106,8 @@ export async function initializeDatabase(env) {
         preorder_limit INTEGER DEFAULT 0,
         preorder_text TEXT DEFAULT '',
         last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (store_url) REFERENCES stores(store_url)
       )
     `).run();
     console.log('Preorder_settings table created/verified');
@@ -113,8 +115,8 @@ export async function initializeDatabase(env) {
     // Create indexes for better performance
     console.log('Creating indexes...');
     await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_user_sessions_expires ON user_sessions(expires_at)`).run();
-    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_preorder_settings_user ON preorder_settings(user_id)`).run();
-    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_preorder_settings_store ON preorder_settings(store_url)`).run();
+    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_users_store_url ON users(store_url)`).run();
+    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_preorder_settings_store_url ON preorder_settings(store_url)`).run();
     await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_preorder_settings_handle ON preorder_settings(product_handle)`).run();
     console.log('Indexes created/verified');
 

@@ -19,15 +19,8 @@ class ProductController {
       const url = new URL(request.url);
       const searchQuery = url.searchParams.get('search') || '';
       
-      // Get user's preorder settings
-      const storeUrl = sessionData.shopifyStoreUrl.startsWith('https://') ? 
-        sessionData.shopifyStoreUrl : 
-        `https://${sessionData.shopifyStoreUrl}`;
-      
-      const dbResults = await this.preorderModel.findByUserAndStore(
-        sessionData.userId, 
-        storeUrl
-      );
+      // Get user's preorder settings through their store
+      const dbResults = await this.preorderModel.findByUserStore(sessionData.userId);
       
       // Process and format products
       const productGroups = {};
@@ -167,7 +160,6 @@ class ProductController {
       for (const product of products) {
         try {
           await this.preorderModel.create({
-            userId: sessionData.userId,
             storeUrl: storeUrl,
             productHandle: product.handle,
             variantTitle: product.variant_title,

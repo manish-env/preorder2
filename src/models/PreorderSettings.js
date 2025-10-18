@@ -5,19 +5,13 @@ class PreorderSettings {
   }
 
   async create(settingData) {
-    const { userId, storeUrl, productHandle, variantTitle, variantSku, isPreorderEnabled, preorderLimit, preorderText } = settingData;
+    const { storeUrl, productHandle, variantTitle, variantSku, isPreorderEnabled, preorderLimit, preorderText } = settingData;
     
     return await this.db.prepare(`
       INSERT OR REPLACE INTO preorder_settings 
-      (user_id, store_url, product_handle, variant_title, variant_sku, is_preorder_enabled, preorder_limit, preorder_text, last_updated)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-    `).bind(userId, storeUrl, productHandle, variantTitle, variantSku, isPreorderEnabled, preorderLimit, preorderText).run();
-  }
-
-  async findByUserId(userId) {
-    return await this.db.prepare(`
-      SELECT * FROM preorder_settings WHERE user_id = ?
-    `).bind(userId).all();
+      (store_url, product_handle, variant_title, variant_sku, is_preorder_enabled, preorder_limit, preorder_text, last_updated)
+      VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    `).bind(storeUrl, productHandle, variantTitle, variantSku, isPreorderEnabled, preorderLimit, preorderText).run();
   }
 
   async findByStoreUrl(storeUrl) {
@@ -26,16 +20,18 @@ class PreorderSettings {
     `).bind(storeUrl).all();
   }
 
-  async findByUserAndStore(userId, storeUrl) {
+  async findByUserStore(userId) {
     return await this.db.prepare(`
-      SELECT * FROM preorder_settings WHERE user_id = ? AND store_url = ?
-    `).bind(userId, storeUrl).all();
+      SELECT ps.* FROM preorder_settings ps
+      JOIN users u ON ps.store_url = u.store_url
+      WHERE u.id = ?
+    `).bind(userId).all();
   }
 
-  async deleteByUserId(userId) {
+  async deleteByStoreUrl(storeUrl) {
     return await this.db.prepare(`
-      DELETE FROM preorder_settings WHERE user_id = ?
-    `).bind(userId).run();
+      DELETE FROM preorder_settings WHERE store_url = ?
+    `).bind(storeUrl).run();
   }
 }
 

@@ -5,18 +5,12 @@ class Store {
   }
 
   async create(storeData) {
-    const { storeUrl, accessToken, userId, webhookSecret } = storeData;
+    const { storeUrl, accessToken, webhookAccessToken, metafieldA, metafieldB, metafieldC, metafieldD } = storeData;
     
     return await this.db.prepare(`
-      INSERT INTO stores (store_url, access_token, user_id, webhook_secret)
-      VALUES (?, ?, ?, ?)
-    `).bind(storeUrl, accessToken, userId, webhookSecret).run();
-  }
-
-  async findByUserId(userId) {
-    return await this.db.prepare(`
-      SELECT * FROM stores WHERE user_id = ?
-    `).bind(userId).first();
+      INSERT OR REPLACE INTO stores (store_url, access_token, webhook_access_token, metafield_a, metafield_b, metafield_c, metafield_d)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).bind(storeUrl, accessToken, webhookAccessToken, metafieldA, metafieldB, metafieldC, metafieldD).run();
   }
 
   async findByUrl(storeUrl) {
@@ -25,13 +19,13 @@ class Store {
     `).bind(storeUrl).first();
   }
 
-  async update(userId, storeUrl, accessToken) {
-    console.log('Store.update called with:', { userId, storeUrl, accessToken: accessToken ? 'provided' : 'missing' });
+  async update(storeData) {
+    const { storeUrl, accessToken, webhookAccessToken, metafieldA, metafieldB, metafieldC, metafieldD } = storeData;
     
     return await this.db.prepare(`
-      INSERT OR REPLACE INTO stores (store_url, access_token)
-      VALUES (?, ?)
-    `).bind(storeUrl, accessToken).run();
+      INSERT OR REPLACE INTO stores (store_url, access_token, webhook_access_token, metafield_a, metafield_b, metafield_c, metafield_d)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).bind(storeUrl, accessToken, webhookAccessToken, metafieldA, metafieldB, metafieldC, metafieldD).run();
   }
 }
 
