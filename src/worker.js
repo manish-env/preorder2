@@ -28,8 +28,8 @@ export default {
     const productRoutes = setupProductRoutes(env);
 
     // Handle CORS preflight
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { headers: corsHeaders });
+      if (request.method === 'OPTIONS') {
+        return new Response(null, { headers: corsHeaders });
     }
 
     // Route API requests
@@ -44,13 +44,13 @@ export default {
       
       if (url.pathname === '/api/auth/connect-shopify') {
         return await authRoutes.connectShopify(request, corsHeaders, sessionData);
-      }
-      
-      if (url.pathname === '/api/auth/login') {
+    }
+    
+    if (url.pathname === '/api/auth/login') {
         return await authRoutes.login(request, corsHeaders);
-      }
-      
-      if (url.pathname === '/api/auth/logout') {
+    }
+    
+    if (url.pathname === '/api/auth/logout') {
         return await authRoutes.logout(request, corsHeaders);
       }
 
@@ -59,13 +59,36 @@ export default {
         return await productRoutes.getProducts(request, corsHeaders, sessionData);
       }
 
+      // Test database connection
+      if (url.pathname === '/api/test-db') {
+        try {
+          const result = await env.DB.prepare('SELECT 1 as test').first();
+    return new Response(JSON.stringify({ 
+      success: true, 
+            message: 'Database connected',
+            result: result 
+    }), {
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ 
+      success: false,
+            error: 'Database connection failed',
+      details: error.message 
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+    });
+  }
+}
+
       // Default API response
       return new Response(JSON.stringify({ error: 'API endpoint not found' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders }
-      });
-    }
-
+          status: 404,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+      
     // Route page requests
     if (url.pathname === '/login') {
       return new Response(loginHtml, {
@@ -109,6 +132,11 @@ export default {
       return new Response(dashboardHtml, {
         headers: { 'Content-Type': 'text/html;charset=UTF-8' }
       });
+    }
+
+    // Handle favicon
+    if (url.pathname === '/favicon.ico') {
+      return new Response('', { status: 204 });
     }
 
     // 404 for all other routes
