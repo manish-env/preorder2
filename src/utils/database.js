@@ -127,3 +127,86 @@ export async function initializeDatabase(env) {
     return false;
   }
 }
+
+// Create new database with clean schema
+export async function createNewDatabase(env) {
+  try {
+    console.log('Creating NEW database with clean schema...');
+    
+    // Create users table
+    console.log('Creating users table...');
+    await env.DB.prepare(`
+      CREATE TABLE users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        store_url TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    console.log('Users table created');
+
+    // Create user_sessions table
+    console.log('Creating user_sessions table...');
+    await env.DB.prepare(`
+      CREATE TABLE user_sessions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id TEXT UNIQUE NOT NULL,
+        user_id INTEGER NOT NULL,
+        expires_at DATETIME NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      )
+    `).run();
+    console.log('User_sessions table created');
+
+    // Create stores table
+    console.log('Creating stores table...');
+    await env.DB.prepare(`
+      CREATE TABLE stores (
+        store_url TEXT PRIMARY KEY,
+        access_token TEXT NOT NULL,
+        webhook_access_token TEXT,
+        metafield_a TEXT,
+        metafield_b TEXT,
+        metafield_c TEXT,
+        metafield_d TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `).run();
+    console.log('Stores table created');
+
+    // Create preorder_settings table
+    console.log('Creating preorder_settings table...');
+    await env.DB.prepare(`
+      CREATE TABLE preorder_settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        store_url TEXT NOT NULL,
+        product_handle TEXT NOT NULL,
+        variant_title TEXT,
+        variant_sku TEXT,
+        is_preorder_enabled BOOLEAN DEFAULT FALSE,
+        preorder_limit INTEGER DEFAULT 0,
+        preorder_text TEXT DEFAULT '',
+        last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (store_url) REFERENCES stores(store_url)
+      )
+    `).run();
+    console.log('Preorder_settings table created');
+
+    // Create indexes for better performance
+    console.log('Creating indexes...');
+    await env.DB.prepare(`CREATE INDEX idx_user_sessions_expires ON user_sessions(expires_at)`).run();
+    await env.DB.prepare(`CREATE INDEX idx_users_store_url ON users(store_url)`).run();
+    await env.DB.prepare(`CREATE INDEX idx_preorder_settings_store_url ON preorder_settings(store_url)`).run();
+    await env.DB.prepare(`CREATE INDEX idx_preorder_settings_handle ON preorder_settings(product_handle)`).run();
+    console.log('Indexes created');
+
+    console.log('NEW DATABASE created successfully');
+    return true;
+  } catch (error) {
+    console.error('New database creation failed:', error);
+    return false;
+  }
+}

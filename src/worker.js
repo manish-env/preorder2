@@ -1,5 +1,5 @@
 // Main Worker - MVC Architecture
-import { initializeDatabase } from './utils/database.js';
+import { initializeDatabase, createNewDatabase } from './utils/database.js';
 import { AuthMiddleware } from './middleware/auth.js';
 import { setupAuthRoutes } from './routes/auth.js';
 import { setupProductRoutes } from './routes/products.js';
@@ -113,9 +113,9 @@ export default {
               // Reset database schema
               if (url.pathname === '/api/reset-db') {
                 try {
-                  console.log('NUCLEAR RESET - Dropping ALL tables...');
+                  console.log('CREATING NEW DATABASE - Dropping ALL tables...');
                   
-                  // Nuclear option - drop everything
+                  // Drop all tables in correct order
                   await env.DB.prepare('DROP TABLE IF EXISTS preorder_settings').run();
                   await env.DB.prepare('DROP TABLE IF EXISTS stores').run();
                   await env.DB.prepare('DROP TABLE IF EXISTS user_sessions').run();
@@ -124,10 +124,10 @@ export default {
                   // Wait a moment for cleanup
                   await new Promise(resolve => setTimeout(resolve, 100));
                   
-                  console.log('All tables dropped, recreating with correct schema...');
+                  console.log('All tables dropped, creating NEW database schema...');
                   
-                  // Reinitialize database with correct schema
-                  await initializeDatabase(env);
+                  // Create new database with clean schema
+                  await createNewDatabase(env);
                   
                   // Verify all tables have correct schema
                   const usersInfo = await env.DB.prepare(`PRAGMA table_info(users)`).all();
@@ -135,7 +135,7 @@ export default {
                   const storesInfo = await env.DB.prepare(`PRAGMA table_info(stores)`).all();
                   const preorderInfo = await env.DB.prepare(`PRAGMA table_info(preorder_settings)`).all();
                   
-                  console.log('VERIFIED schemas:');
+                  console.log('NEW DATABASE SCHEMA VERIFIED:');
                   console.log('Users:', usersInfo.results.map(c => c.name));
                   console.log('Sessions:', sessionsInfo.results.map(c => c.name));
                   console.log('Stores:', storesInfo.results.map(c => c.name));
@@ -143,7 +143,7 @@ export default {
                   
                   return new Response(JSON.stringify({ 
                     success: true, 
-                    message: 'Database NUCLEAR reset successful',
+                    message: 'NEW DATABASE created successfully',
                     schemas: {
                       users: usersInfo.results.map(c => c.name),
                       sessions: sessionsInfo.results.map(c => c.name),
@@ -154,10 +154,10 @@ export default {
                     headers: { 'Content-Type': 'application/json', ...corsHeaders }
                   });
                 } catch (error) {
-                  console.error('Nuclear reset failed:', error);
+                  console.error('Database creation failed:', error);
                   return new Response(JSON.stringify({ 
                     success: false, 
-                    error: 'Nuclear reset failed',
+                    error: 'Database creation failed',
                     details: error.message 
                   }), {
                     status: 500,
