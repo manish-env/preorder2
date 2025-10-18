@@ -1,5 +1,5 @@
 # The name of your worker.
-name = "shopify-preorder-dashboard"
+name = "rjs-preorder"
 
 # The main entry point for your worker.
 main = "src/worker.js"
