@@ -247,6 +247,114 @@ class AuthController {
     }
   }
 
+  async updateSettings(request, corsHeaders) {
+    try {
+      const sessionId = this.getSessionIdFromCookie(request);
+      const sessionData = await this.authMiddleware.verifySession(sessionId);
+      
+      if (!sessionData || !sessionData.valid) {
+        return new Response(JSON.stringify({ 
+          success: false,
+          error: 'Unauthorized - please sign in first' 
+        }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+
+      const { storeName, shopifyStoreUrl, shopifyApiKey } = await request.json();
+      
+      if (!storeName || !shopifyStoreUrl || !shopifyApiKey) {
+        return new Response(JSON.stringify({ 
+          success: false,
+          error: 'All fields are required' 
+        }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+
+      // Update user settings
+      await this.userModel.updateShopifyDetails(sessionData.userId, {
+        storeName: storeName,
+        shopifyStoreUrl: shopifyStoreUrl,
+        shopifyApiKey: shopifyApiKey
+      });
+
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: 'Settings updated successfully'
+      }), {
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+      
+    } catch (error) {
+      console.error('Error in updateSettings:', error);
+      return new Response(JSON.stringify({ 
+        success: false,
+        error: 'Failed to update settings',
+        details: error.message 
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+  }
+
+  async getUserInfo(request, corsHeaders) {
+    try {
+      const sessionId = this.getSessionIdFromCookie(request);
+      const sessionData = await this.authMiddleware.verifySession(sessionId);
+      
+      if (!sessionData || !sessionData.valid) {
+        return new Response(JSON.stringify({ 
+          success: false,
+          error: 'Unauthorized - please sign in first' 
+        }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+
+      // Get user details
+      const user = await this.userModel.findById(sessionData.userId);
+      
+      if (!user) {
+        return new Response(JSON.stringify({ 
+          success: false,
+          error: 'User not found' 
+        }), {
+          status: 404,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        });
+      }
+
+      return new Response(JSON.stringify({ 
+        success: true,
+        user: {
+          id: user.id,
+          email: user.email,
+          storeName: user.store_name,
+          shopifyStoreUrl: user.shopify_store_url,
+          shopifyApiKey: user.shopify_api_key ? '***' + user.shopify_api_key.slice(-4) : null
+        }
+      }), {
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+      
+    } catch (error) {
+      console.error('Error in getUserInfo:', error);
+      return new Response(JSON.stringify({ 
+        success: false,
+        error: 'Failed to get user info',
+        details: error.message 
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json', ...corsHeaders }
+      });
+    }
+  }
+
   // Utility methods
   async hashPassword(password) {
     const passwordHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));

@@ -13,9 +13,9 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
             margin: 0; 
             padding: 0; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f8fafc;
             min-height: 100vh;
-            color: #ffffff;
+            color: #1e293b;
         }
         
         .dashboard-container {
@@ -24,29 +24,25 @@
         }
         
         .header {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 32px;
-            margin-bottom: 32px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         
         .header h1 {
             margin: 0;
-            font-size: 32px;
-            font-weight: 800;
+            font-size: 28px;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 16px;
-            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            gap: 12px;
+            color: #1e293b;
         }
         
         .user-info {
@@ -56,28 +52,42 @@
         }
         
         .user-name {
-            background: rgba(255, 255, 255, 0.1);
+            background: #f1f5f9;
             padding: 8px 16px;
-            border-radius: 12px;
-            font-weight: 600;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-weight: 500;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .settings-btn {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .settings-btn:hover {
+            background: #2563eb;
         }
         
         .logout-btn {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            background: #ef4444;
             border: none;
             color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
         
         .logout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+            background: #dc2626;
         }
         
         .main-content {
@@ -88,86 +98,68 @@
         }
         
         .card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 32px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
             position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
         }
         
         .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
-        }
-        
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         
         .card h2 {
-            margin: 0 0 24px 0;
-            font-size: 24px;
-            font-weight: 700;
+            margin: 0 0 20px 0;
+            font-size: 20px;
+            font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 12px;
-            color: #ffffff;
+            gap: 8px;
+            color: #1e293b;
         }
         
         .upload-area {
-            border: 2px dashed rgba(255, 255, 255, 0.4);
-            border-radius: 16px;
-            padding: 48px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 32px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+            background: #f8fafc;
         }
         
         .upload-area:hover {
-            border-color: rgba(255, 255, 255, 0.6);
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
+            border-color: #22c55e;
+            background: #f0fdf4;
         }
         
         .upload-area.dragover {
             border-color: #22c55e;
-            background: rgba(34, 197, 94, 0.15);
-            transform: scale(1.02);
+            background: #f0fdf4;
         }
         
         .upload-btn {
-            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            background: #22c55e;
             color: white;
             border: none;
-            padding: 16px 32px;
-            border-radius: 12px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
         }
         
         .upload-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
+            background: #16a34a;
         }
         
         .upload-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
         
         .products-section {
@@ -176,25 +168,24 @@
         
         .search-bar {
             width: 100%;
-            padding: 16px 20px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            margin-bottom: 24px;
-            font-size: 16px;
-            transition: all 0.3s ease;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 14px;
+            transition: all 0.2s ease;
         }
         
         .search-bar:focus {
             outline: none;
-            border-color: rgba(255, 255, 255, 0.6);
-            background: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
         .search-bar::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+            color: #9ca3af;
         }
         
         .products-grid {
@@ -396,6 +387,141 @@
             transform: translateY(-2px);
         }
         
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal {
+            background: #ffffff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .close-btn:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        
+        .cancel-btn {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .cancel-btn:hover {
+            background: #e5e7eb;
+        }
+        
+        .save-btn {
+            background: #3b82f6;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .save-btn:hover:not(:disabled) {
+            background: #2563eb;
+        }
+        
+        .save-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -422,6 +548,9 @@
                     <i class="fas fa-store"></i>
                     {{ userInfo.storeName }}
                 </div>
+                <button class="settings-btn" @click="openSettings">
+                    <i class="fas fa-cog"></i> Settings
+                </button>
                 <button class="logout-btn" @click="logout">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
@@ -550,6 +679,71 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Settings Modal -->
+        <div v-if="showSettings" class="modal-overlay" @click="closeSettings">
+            <div class="modal" @click.stop>
+                <div class="modal-header">
+                    <h3><i class="fas fa-cog"></i> Settings</h3>
+                    <button class="close-btn" @click="closeSettings">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="modal-body">
+                    <form @submit.prevent="updateSettings">
+                        <div class="form-group">
+                            <label for="storeName">
+                                <i class="fas fa-store"></i> Store Name
+                            </label>
+                            <input 
+                                type="text" 
+                                id="storeName" 
+                                v-model="settingsForm.storeName"
+                                placeholder="Enter your store name"
+                                required
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="shopifyStoreUrl">
+                                <i class="fas fa-link"></i> Shopify Store URL
+                            </label>
+                            <input 
+                                type="text" 
+                                id="shopifyStoreUrl" 
+                                v-model="settingsForm.shopifyStoreUrl"
+                                placeholder="your-store.myshopify.com"
+                                required
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="shopifyApiKey">
+                                <i class="fas fa-key"></i> Shopify API Access Token
+                            </label>
+                            <input 
+                                type="password" 
+                                id="shopifyApiKey" 
+                                v-model="settingsForm.shopifyApiKey"
+                                placeholder="shpat_..."
+                                required
+                            >
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="cancel-btn" @click="closeSettings">
+                                Cancel
+                            </button>
+                            <button type="submit" class="save-btn" :disabled="saving">
+                                <i class="fas fa-save"></i>
+                                {{ saving ? 'Saving...' : 'Save Changes' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -568,7 +762,14 @@
                     error: '',
                     selectedFile: null,
                     uploading: false,
-                    isDragOver: false
+                    isDragOver: false,
+                    showSettings: false,
+                    saving: false,
+                    settingsForm: {
+                        storeName: '',
+                        shopifyStoreUrl: '',
+                        shopifyApiKey: ''
+                    }
                 }
             },
             computed: {
@@ -582,6 +783,7 @@
                 }
             },
             async mounted() {
+                await this.loadUserInfo();
                 await this.loadProducts();
             },
             methods: {
@@ -688,6 +890,61 @@
                     setTimeout(() => {
                         this.message = '';
                     }, 5000);
+                },
+                
+                openSettings() {
+                    this.showSettings = true;
+                    // Load current user info into form
+                    if (this.userInfo) {
+                        this.settingsForm.storeName = this.userInfo.storeName || '';
+                        this.settingsForm.shopifyStoreUrl = this.userInfo.shopifyStoreUrl || '';
+                        this.settingsForm.shopifyApiKey = this.userInfo.shopifyApiKey || '';
+                    }
+                },
+                
+                closeSettings() {
+                    this.showSettings = false;
+                    this.saving = false;
+                },
+                
+                async updateSettings() {
+                    this.saving = true;
+                    try {
+                        const response = await fetch('/api/auth/update-settings', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(this.settingsForm)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            this.showMessage('Settings updated successfully!', 'success');
+                            this.closeSettings();
+                            // Reload user info
+                            await this.loadUserInfo();
+                        } else {
+                            this.showMessage(result.error || 'Failed to update settings', 'error');
+                        }
+                    } catch (error) {
+                        this.showMessage('Failed to update settings', 'error');
+                        console.error('Settings update error:', error);
+                    } finally {
+                        this.saving = false;
+                    }
+                },
+                
+                async loadUserInfo() {
+                    try {
+                        const response = await fetch('/api/auth/user-info');
+                        if (response.ok) {
+                            this.userInfo = await response.json();
+                        }
+                    } catch (error) {
+                        console.error('Error loading user info:', error);
+                    }
                 }
             }
         }).mount('#app');

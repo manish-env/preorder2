@@ -19,6 +19,14 @@ export function setupAuthRoutes(env) {
     
     async logout(request, corsHeaders) {
       return await authController.logout(request, corsHeaders);
+    },
+    
+    async updateSettings(request, corsHeaders) {
+      return await authController.updateSettings(request, corsHeaders);
+    },
+    
+    async getUserInfo(request, corsHeaders) {
+      return await authController.getUserInfo(request, corsHeaders);
     }
   };
 }

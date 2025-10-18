@@ -207,6 +207,16 @@ export default {
                 }
               }
 
+      // Update user settings
+      if (url.pathname === '/api/auth/update-settings') {
+        return await authRoutes.updateSettings(request, corsHeaders);
+      }
+
+      // Get user info
+      if (url.pathname === '/api/auth/user-info') {
+        return await authRoutes.getUserInfo(request, corsHeaders);
+      }
+
       // Default API response
       return new Response(JSON.stringify({ error: 'API endpoint not found' }), {
           status: 404,
