@@ -18,8 +18,8 @@ class AuthController {
   async signup(request, corsHeaders) {
     try {
       console.log('Signup request received');
-      const { email, password, storeName } = await request.json();
-      console.log('Signup data:', { email, storeName });
+      const { email, password } = await request.json();
+      console.log('Signup data:', { email });
       
       // Check if user already exists
       console.log('Checking if user exists...');
@@ -43,9 +43,7 @@ class AuthController {
       const userId = await this.userModel.create({
         email,
         passwordHash,
-        storeName,
-        shopifyStoreUrl: null,
-        shopifyApiKey: null
+        storeUrl: null
       });
       console.log('User created with ID:', userId);
       
@@ -111,16 +109,22 @@ class AuthController {
         `https://${shopifyStoreUrl}`;
       console.log('Full store URL:', fullStoreUrl);
       
-      console.log('Updating user Shopify details...');
-      await this.userModel.updateShopifyDetails(
-        sessionData.userId, 
-        fullStoreUrl, 
-        shopifyApiKey
-      );
-      console.log('User details updated successfully');
+      console.log('Updating user store URL...');
+      await this.userModel.updateStoreUrl(sessionData.userId, fullStoreUrl);
+      console.log('User store URL updated successfully');
       
-      // Store credentials are now saved in the users table
-      // No need for separate stores table
+      // Create/update store record
+      console.log('Creating store record...');
+      await this.storeModel.create({
+        storeUrl: fullStoreUrl,
+        accessToken: shopifyApiKey,
+        webhookAccessToken: null,
+        metafieldA: null,
+        metafieldB: null,
+        metafieldC: null,
+        metafieldD: null
+      });
+      console.log('Store record created successfully');
       
       return new Response(JSON.stringify({ 
         success: true, 
@@ -262,23 +266,30 @@ class AuthController {
         });
       }
 
-      const { storeName, shopifyStoreUrl, shopifyApiKey } = await request.json();
+      const { storeUrl, accessToken, webhookAccessToken } = await request.json();
       
-      if (!storeName || !shopifyStoreUrl || !shopifyApiKey) {
+      if (!storeUrl || !accessToken) {
         return new Response(JSON.stringify({ 
           success: false,
-          error: 'All fields are required' 
+          error: 'Store URL and access token are required' 
         }), {
           status: 400,
           headers: { 'Content-Type': 'application/json', ...corsHeaders }
         });
       }
 
-      // Update user settings
-      await this.userModel.updateShopifyDetails(sessionData.userId, {
-        storeName: storeName,
-        shopifyStoreUrl: shopifyStoreUrl,
-        shopifyApiKey: shopifyApiKey
+      // Update user store URL
+      await this.userModel.updateStoreUrl(sessionData.userId, storeUrl);
+      
+      // Update store record
+      await this.storeModel.create({
+        storeUrl: storeUrl,
+        accessToken: accessToken,
+        webhookAccessToken: webhookAccessToken,
+        metafieldA: null,
+        metafieldB: null,
+        metafieldC: null,
+        metafieldD: null
       });
 
       return new Response(JSON.stringify({ 
@@ -329,14 +340,23 @@ class AuthController {
         });
       }
 
+      // Get store details if user has a store
+      let store = null;
+      if (user.store_url) {
+        store = await this.storeModel.findByUrl(user.store_url);
+      }
+
       return new Response(JSON.stringify({ 
         success: true,
         user: {
           id: user.id,
           email: user.email,
-          storeName: user.store_name,
-          shopifyStoreUrl: user.shopify_store_url,
-          shopifyApiKey: user.shopify_api_key ? '***' + user.shopify_api_key.slice(-4) : null
+          storeUrl: user.store_url,
+          store: store ? {
+            storeUrl: store.store_url,
+            accessToken: store.access_token ? '***' + store.access_token.slice(-4) : null,
+            webhookAccessToken: store.webhook_access_token ? '***' + store.webhook_access_token.slice(-4) : null
+          } : null
         }
       }), {
         headers: { 'Content-Type': 'application/json', ...corsHeaders }
