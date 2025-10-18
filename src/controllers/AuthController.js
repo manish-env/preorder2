@@ -60,7 +60,8 @@ class AuthController {
       return new Response(JSON.stringify({ 
         success: true, 
         message: 'Account created successfully',
-        userId: userId
+        userId: userId,
+        redirectTo: '/connect-shopify'
       }), {
         headers: { 
           'Content-Type': 'application/json', 
@@ -85,9 +86,15 @@ class AuthController {
 
   async connectShopify(request, corsHeaders, sessionData) {
     try {
+      console.log('ConnectShopify request received');
+      console.log('Session data:', sessionData);
+      
       const { shopifyStoreUrl, shopifyApiKey } = await request.json();
+      console.log('Shopify store URL:', shopifyStoreUrl);
+      console.log('API key provided:', shopifyApiKey ? 'Yes' : 'No');
       
       if (!sessionData || !sessionData.valid) {
+        console.log('Invalid session data, returning 401');
         return new Response(JSON.stringify({ 
           success: false,
           error: 'Unauthorized - please sign in first' 
@@ -98,22 +105,28 @@ class AuthController {
       }
       
       // Update user with Shopify details
+      console.log('Processing store URL...');
       const fullStoreUrl = shopifyStoreUrl.startsWith('https://') ? 
         shopifyStoreUrl : 
         `https://${shopifyStoreUrl}`;
+      console.log('Full store URL:', fullStoreUrl);
       
+      console.log('Updating user Shopify details...');
       await this.userModel.updateShopifyDetails(
         sessionData.userId, 
         fullStoreUrl, 
         shopifyApiKey
       );
+      console.log('User details updated successfully');
       
       // Create or update store entry
+      console.log('Creating/updating store entry...');
       await this.storeModel.update(
         sessionData.userId, 
         fullStoreUrl, 
         shopifyApiKey
       );
+      console.log('Store entry updated successfully');
       
       return new Response(JSON.stringify({ 
         success: true, 
@@ -127,6 +140,7 @@ class AuthController {
       
     } catch (error) {
       console.error('Error in connectShopify:', error);
+      console.error('Error stack:', error.stack);
       return new Response(JSON.stringify({ 
         success: false,
         error: 'Shopify connection failed', 

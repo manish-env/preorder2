@@ -49,6 +49,22 @@ export async function initializeDatabase(env) {
 
     // Create stores table
     console.log('Creating stores table...');
+    
+    // First, check if the table exists and has the correct schema
+    try {
+      const tableInfo = await env.DB.prepare(`PRAGMA table_info(stores)`).all();
+      console.log('Current stores schema:', tableInfo);
+      
+      // If table exists but doesn't have user_id column, drop and recreate
+      const hasUserId = tableInfo.results.some(col => col.name === 'user_id');
+      if (tableInfo.results.length > 0 && !hasUserId) {
+        console.log('Dropping old stores table...');
+        await env.DB.prepare(`DROP TABLE IF EXISTS stores`).run();
+      }
+    } catch (error) {
+      console.log('Table does not exist or error checking schema:', error.message);
+    }
+    
     await env.DB.prepare(`
       CREATE TABLE IF NOT EXISTS stores (
         store_url TEXT PRIMARY KEY,

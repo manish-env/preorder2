@@ -137,6 +137,47 @@ export default {
                 }
               }
 
+              // Test Shopify connection
+              if (url.pathname === '/api/test-shopify') {
+                try {
+                  const sessionId = authMiddleware.getSessionIdFromCookie(request);
+                  const sessionData = await authMiddleware.verifySession(sessionId);
+                  
+                  if (!sessionData || !sessionData.valid) {
+                    return new Response(JSON.stringify({ 
+                      success: false,
+                      error: 'Unauthorized - please sign in first' 
+                    }), {
+                      status: 401,
+                      headers: { 'Content-Type': 'application/json', ...corsHeaders }
+                    });
+                  }
+                  
+                  return new Response(JSON.stringify({ 
+                    success: true, 
+                    message: 'Session valid',
+                    sessionData: {
+                      userId: sessionData.userId,
+                      email: sessionData.email,
+                      storeName: sessionData.storeName,
+                      hasShopifyUrl: !!sessionData.shopifyStoreUrl,
+                      hasShopifyKey: !!sessionData.shopifyApiKey
+                    }
+                  }), {
+                    headers: { 'Content-Type': 'application/json', ...corsHeaders }
+                  });
+                } catch (error) {
+                  return new Response(JSON.stringify({ 
+                    success: false, 
+                    error: 'Test failed',
+                    details: error.message 
+                  }), {
+                    status: 500,
+                    headers: { 'Content-Type': 'application/json', ...corsHeaders }
+                  });
+                }
+              }
+
       // Default API response
       return new Response(JSON.stringify({ error: 'API endpoint not found' }), {
           status: 404,
