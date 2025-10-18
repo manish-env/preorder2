@@ -82,6 +82,11 @@ export default {
         return await productRoutes.getProducts(request, corsHeaders, sessionData);
       }
 
+      // CSV upload route
+      if (url.pathname === '/api/csv/upload') {
+        return await productRoutes.uploadCsv(request, corsHeaders, sessionData);
+      }
+
               // Test database connection
               if (url.pathname === '/api/test-db') {
                 try {
