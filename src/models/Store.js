@@ -1,35 +1,44 @@
+import { getDatabase } from '../utils/database.js';
+
 // Store Model
 class Store {
-  constructor(env) {
-    this.db = env.DB;
+  constructor() {
+    this.db = getDatabase();
   }
 
   async create(storeData) {
     const { storeUrl, accessToken, userId, webhookSecret } = storeData;
     
-    return await this.db.prepare(`
-      INSERT INTO stores (store_url, access_token, user_id, webhook_secret)
-      VALUES (?, ?, ?, ?)
-    `).bind(storeUrl, accessToken, userId, webhookSecret).run();
+    const store = {
+      storeUrl,
+      accessToken,
+      userId,
+      webhookSecret: webhookSecret || null,
+      createdAt: new Date()
+    };
+    
+    return await this.db.collection('stores').insertOne(store);
   }
 
   async findByUserId(userId) {
-    return await this.db.prepare(`
-      SELECT * FROM stores WHERE user_id = ?
-    `).bind(userId).first();
+    return await this.db.collection('stores').findOne({ userId });
   }
 
   async findByUrl(storeUrl) {
-    return await this.db.prepare(`
-      SELECT * FROM stores WHERE store_url = ?
-    `).bind(storeUrl).first();
+    return await this.db.collection('stores').findOne({ storeUrl });
   }
 
   async update(userId, storeUrl, accessToken) {
-    return await this.db.prepare(`
-      INSERT OR REPLACE INTO stores (store_url, access_token, user_id)
-      VALUES (?, ?, ?)
-    `).bind(storeUrl, accessToken, userId).run();
+    return await this.db.collection('stores').replaceOne(
+      { userId },
+      {
+        storeUrl,
+        accessToken,
+        userId,
+        updatedAt: new Date()
+      },
+      { upsert: true }
+    );
   }
 }
 

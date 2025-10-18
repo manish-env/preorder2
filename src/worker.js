@@ -1,5 +1,5 @@
 // Main Worker - MVC Architecture
-import { initializeDatabase } from './utils/database.js';
+import { initializeDatabase, getDatabase } from './utils/database.js';
 import { AuthMiddleware } from './middleware/auth.js';
 import { setupAuthRoutes } from './routes/auth.js';
 import { setupProductRoutes } from './routes/products.js';
@@ -59,28 +59,29 @@ export default {
         return await productRoutes.getProducts(request, corsHeaders, sessionData);
       }
 
-      // Test database connection
-      if (url.pathname === '/api/test-db') {
-        try {
-          const result = await env.DB.prepare('SELECT 1 as test').first();
-    return new Response(JSON.stringify({ 
-      success: true, 
-            message: 'Database connected',
-            result: result 
-    }), {
-      headers: { 'Content-Type': 'application/json', ...corsHeaders }
-    });
-  } catch (error) {
-    return new Response(JSON.stringify({ 
-      success: false,
-            error: 'Database connection failed',
-      details: error.message 
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders }
-    });
-  }
-}
+              // Test database connection
+              if (url.pathname === '/api/test-db') {
+                try {
+                  const db = getDatabase();
+                  const result = await db.collection('users').findOne({});
+                  return new Response(JSON.stringify({ 
+                    success: true, 
+                    message: 'MongoDB connected',
+                    result: 'Database accessible' 
+                  }), {
+                    headers: { 'Content-Type': 'application/json', ...corsHeaders }
+                  });
+                } catch (error) {
+                  return new Response(JSON.stringify({ 
+                    success: false, 
+                    error: 'MongoDB connection failed',
+                    details: error.message 
+                  }), {
+                    status: 500,
+                    headers: { 'Content-Type': 'application/json', ...corsHeaders }
+                  });
+                }
+              }
 
       // Default API response
       return new Response(JSON.stringify({ error: 'API endpoint not found' }), {
