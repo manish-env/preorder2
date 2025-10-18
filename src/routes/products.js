@@ -7,6 +7,10 @@ export function setupProductRoutes(env) {
   return {
     async getProducts(request, corsHeaders, sessionData) {
       return await productController.getProducts(request, corsHeaders, sessionData);
+    },
+    
+    async uploadCsv(request, corsHeaders, sessionData) {
+      return await productController.uploadCsv(request, corsHeaders, sessionData);
     }
   };
 }
