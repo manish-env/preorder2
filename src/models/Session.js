@@ -1,51 +1,35 @@
-import { getDatabase } from '../utils/database.js';
-
 // Session Model
 class Session {
-  constructor() {
-    this.db = getDatabase();
+  constructor(env) {
+    this.db = env.DB;
   }
 
   async create(sessionId, userId, expiresAt) {
-    const session = {
-      sessionId,
-      userId,
-      expiresAt: new Date(expiresAt),
-      createdAt: new Date()
-    };
-    
-    return await this.db.collection('user_sessions').insertOne(session);
+    return await this.db.prepare(`
+      INSERT INTO user_sessions (session_id, user_id, expires_at)
+      VALUES (?, ?, ?)
+    `).bind(sessionId, userId, expiresAt).run();
   }
 
   async findBySessionId(sessionId) {
-    const session = await this.db.collection('user_sessions').findOne({
-      sessionId,
-      expiresAt: { $gt: new Date() }
-    });
-    
-    if (!session) return null;
-    
-    // Get user details
-    const user = await this.db.collection('users').findOne({ _id: session.userId });
-    if (!user) return null;
-    
-    return {
-      ...session,
-      email: user.email,
-      storeName: user.storeName,
-      shopifyStoreUrl: user.shopifyStoreUrl,
-      shopifyApiKey: user.shopifyApiKey
-    };
+    return await this.db.prepare(`
+      SELECT us.*, u.email, u.store_name, u.shopify_store_url, u.shopify_api_key
+      FROM user_sessions us
+      JOIN users u ON us.user_id = u.id
+      WHERE us.session_id = ? AND us.expires_at > datetime('now')
+    `).bind(sessionId).first();
   }
 
   async delete(sessionId) {
-    return await this.db.collection('user_sessions').deleteOne({ sessionId });
+    return await this.db.prepare(`
+      DELETE FROM user_sessions WHERE session_id = ?
+    `).bind(sessionId).run();
   }
 
   async cleanup() {
-    return await this.db.collection('user_sessions').deleteMany({
-      expiresAt: { $lt: new Date() }
-    });
+    return await this.db.prepare(`
+      DELETE FROM user_sessions WHERE expires_at < datetime('now')
+    `).run();
   }
 }
 

@@ -4,10 +4,10 @@ import Session from '../models/Session.js';
 import Store from '../models/Store.js';
 
 class AuthController {
-  constructor() {
-    this.userModel = new User();
-    this.sessionModel = new Session();
-    this.storeModel = new Store();
+  constructor(env) {
+    this.userModel = new User(env);
+    this.sessionModel = new Session(env);
+    this.storeModel = new Store(env);
   }
 
   async signup(request, corsHeaders) {

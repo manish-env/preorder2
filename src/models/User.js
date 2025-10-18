@@ -1,46 +1,38 @@
-import { getDatabase } from '../utils/database.js';
-
 // User Model
 class User {
-  constructor() {
-    this.db = getDatabase();
+  constructor(env) {
+    this.db = env.DB;
   }
 
   async create(userData) {
     const { email, passwordHash, storeName, shopifyStoreUrl, shopifyApiKey } = userData;
     
-    const user = {
-      email,
-      passwordHash,
-      storeName,
-      shopifyStoreUrl: shopifyStoreUrl || null,
-      shopifyApiKey: shopifyApiKey || null,
-      createdAt: new Date()
-    };
+    const result = await this.db.prepare(`
+      INSERT INTO users (email, password_hash, store_name, shopify_store_url, shopify_api_key)
+      VALUES (?, ?, ?, ?, ?)
+    `).bind(email, passwordHash, storeName, shopifyStoreUrl, shopifyApiKey).run();
     
-    const result = await this.db.collection('users').insertOne(user);
-    return result.insertedId;
+    return result.meta.last_row_id;
   }
 
   async findByEmail(email) {
-    return await this.db.collection('users').findOne({ email });
+    return await this.db.prepare(`
+      SELECT * FROM users WHERE email = ?
+    `).bind(email).first();
   }
 
   async findById(id) {
-    return await this.db.collection('users').findOne({ _id: id });
+    return await this.db.prepare(`
+      SELECT * FROM users WHERE id = ?
+    `).bind(id).first();
   }
 
   async updateShopifyDetails(userId, shopifyStoreUrl, shopifyApiKey) {
-    return await this.db.collection('users').updateOne(
-      { _id: userId },
-      { 
-        $set: { 
-          shopifyStoreUrl, 
-          shopifyApiKey,
-          updatedAt: new Date()
-        } 
-      }
-    );
+    return await this.db.prepare(`
+      UPDATE users 
+      SET shopify_store_url = ?, shopify_api_key = ?
+      WHERE id = ?
+    `).bind(shopifyStoreUrl, shopifyApiKey, userId).run();
   }
 
   async exists(email) {

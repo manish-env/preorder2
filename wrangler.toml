@@ -6,11 +6,16 @@ main = "src/worker.js"
 
 # Specifies the version of the Workers runtime.
 compatibility_date = "2023-10-30"
-compatibility_flags = ["nodejs_compat"]
 
 # Cloudflare account ID
 account_id = "15ca7e334e718fd09111923bd889fc4c"
 
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "preorder-db"
+database_id = "ef1a2776-cdb4-4834-a309-b0cbeb91a6a4"
+
 # Environment variables for your worker.
-# All user data is stored in MongoDB - no secrets needed
+# All user data is stored in the database - no secrets needed
 [vars]

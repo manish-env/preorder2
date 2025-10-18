@@ -1,5 +1,5 @@
 // Main Worker - MVC Architecture
-import { initializeDatabase, getDatabase } from './utils/database.js';
+import { initializeDatabase } from './utils/database.js';
 import { AuthMiddleware } from './middleware/auth.js';
 import { setupAuthRoutes } from './routes/auth.js';
 import { setupProductRoutes } from './routes/products.js';
@@ -62,19 +62,18 @@ export default {
               // Test database connection
               if (url.pathname === '/api/test-db') {
                 try {
-                  const db = getDatabase();
-                  const result = await db.collection('users').findOne({});
+                  const result = await env.DB.prepare('SELECT 1 as test').first();
                   return new Response(JSON.stringify({ 
                     success: true, 
-                    message: 'MongoDB connected',
-                    result: 'Database accessible' 
+                    message: 'D1 database connected',
+                    result: result 
                   }), {
                     headers: { 'Content-Type': 'application/json', ...corsHeaders }
                   });
                 } catch (error) {
                   return new Response(JSON.stringify({ 
                     success: false, 
-                    error: 'MongoDB connection failed',
+                    error: 'D1 database connection failed',
                     details: error.message 
                   }), {
                     status: 500,
